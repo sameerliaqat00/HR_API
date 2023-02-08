@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 
 namespace HR_API.Controllers
 {
@@ -17,90 +18,154 @@ namespace HR_API.Controllers
         private readonly ILogger _logger;
         private readonly IMapper _mapper;
         private readonly ICompanyProfileRepository _repository;
+        protected APIResponse _response;
         public CompanyProfileController(IMapper mapper, ICompanyProfileRepository repository, ILogger<CompanyProfile> logger)
         {
             _mapper = mapper;
             _logger = logger;
             _repository = repository;
+            this._response = new();
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CompanyProfileDTO>>> GetCompanies()
+        public async Task<ActionResult<APIResponse>> GetCompanies()
         {
-            var companyList = await _repository.GetAllAsync();
-            return Ok(_mapper.Map<List<CompanyProfileDTO>>(companyList));
+            try
+            {
+                var companyList = await _repository.GetAllAsync();
+                _response.Result = _mapper.Map<List<CompanyProfileDTO>>(companyList);
+                _response.StatusCode = HttpStatusCode.OK;
+                return Ok(_response);
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.ErrorMessages = new List<string>() { ex.ToString() };
+            }
+            return _response;
         }
 
         [HttpGet("{id:int}", Name = "GetCompany")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<CompanyProfileDTO>> GetCompany(int id)
+        public async Task<ActionResult<APIResponse>> GetCompany(int id)
         {
-            if (id == 0)
+            try
             {
-                return BadRequest();
+                if (id == 0)
+                {
+                    _response.StatusCode = HttpStatusCode.BadRequest;
+                    return BadRequest(_response);
+                }
+                var company = await _repository.GetAsync();
+                if (company == null)
+                {
+                    _response.StatusCode = HttpStatusCode.NotFound;
+                    return NotFound(_response);
+                }
+                _response.Result = _mapper.Map<CompanyProfileDTO>(company);
+                _response.StatusCode = HttpStatusCode.OK;
+                return Ok(_response);
             }
-            var company = await _repository.GetAsync();
-            if (company == null)
+            catch (Exception ex)
             {
-                return NotFound();
+                _response.IsSuccess = false;
+                _response.ErrorMessages = new List<string>() { ex.ToString() };
             }
-            return Ok(_mapper.Map<CompanyProfileDTO>(company));
+            return _response;
         }
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<CompanyProfileDTO>> CreateCompany([FromBody] CompanyProfileCreateDTO createDTO)
+        public async Task<ActionResult<APIResponse>> CreateCompany([FromBody] CompanyProfileCreateDTO createDTO)
         {
-            var company = await _repository.GetAsync(x => x.CompanyName.ToLower() == createDTO.CompanyName.ToLower());
-            if (company != null)
+            try
             {
-                ModelState.AddModelError("CustomError", "Company Already Exists");
-                return BadRequest(ModelState);
+                var company = await _repository.GetAsync(x => x.CompanyName.ToLower() == createDTO.CompanyName.ToLower());
+                if (company != null)
+                {
+                    ModelState.AddModelError("CustomError", "Company Name Already Exist");
+                    return BadRequest(ModelState);
+                }
+                if (company == null)
+                {
+                    _response.StatusCode = HttpStatusCode.BadRequest;
+                    return BadRequest(_response);
+                }
+                var model = _mapper.Map<CompanyProfile>(createDTO);
+
+                await _repository.CreateAsync(model);
+                _response.Result = _mapper.Map<CompanyProfileDTO>(company);
+                _response.StatusCode = HttpStatusCode.Created;
+                return CreatedAtRoute("GetCompany", new { id = model.CompanyId }, _response);
             }
-            if (company == null)
+            catch (Exception ex)
             {
-                return BadRequest();
+                _response.IsSuccess = false;
+                _response.ErrorMessages = new List<string>() { ex.ToString() };
             }
-            var model = _mapper.Map<CompanyProfile>(createDTO);
-            await _repository.CreateAsync(model);
-            return CreatedAtRoute("GetCompany", new { id = model.CompanyId }, model);
+            return _response;
         }
 
         [HttpDelete("{id:int}", Name = "DeleteCompany")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult> DeleteCompany(int id)
+        public async Task<ActionResult<APIResponse>> DeleteCompany(int id)
         {
-            if (id == 0)
+            try
             {
-                return BadRequest();
+                if (id == 0)
+                {
+                    _response.StatusCode = HttpStatusCode.BadRequest;
+                    return BadRequest(_response);
+                }
+                var company = await _repository.GetAsync(x => x.CompanyId == id);
+                if (company == null)
+                {
+                    _response.StatusCode = HttpStatusCode.NotFound;
+                    return NotFound(_response);
+                }
+                await _repository.RemoveAsync(company);
+                _response.StatusCode = HttpStatusCode.NoContent;
+                _response.IsSuccess = true;
+                return Ok(_response);
             }
-            var company = await _repository.GetAsync(x => x.CompanyId == id);
-            if (company == null)
+            catch (Exception ex)
             {
-                return NotFound();
+                _response.IsSuccess = false;
+                _response.ErrorMessages = new List<string>() { ex.ToString() };
             }
-            await _repository.RemoveAsync(company);
-            return NoContent();
+            return _response;
         }
 
         [HttpPut]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<CompanyProfileDTO>> UpdateCompany(int id, [FromBody] CompanyProfileUpdateDTO updateDTO)
+        public async Task<ActionResult<APIResponse>> UpdateCompany(int id, [FromBody] CompanyProfileUpdateDTO updateDTO)
         {
-            if (updateDTO == null || id != updateDTO.CompanyId)
+            try
             {
-                return BadRequest();
+                if (updateDTO == null || id != updateDTO.CompanyId)
+                {
+                    _response.StatusCode = HttpStatusCode.BadRequest;
+                    return BadRequest(_response);
+                }
+                var model = _mapper.Map<CompanyProfile>(updateDTO);
+                await _repository.UpdateAsync(model);
+                _response.StatusCode = HttpStatusCode.NoContent;
+                _response.IsSuccess = true;
+                return Ok(_response);
             }
-            var model = _mapper.Map<CompanyProfile>(updateDTO);
-            await _repository.UpdateAsync(model);
-            return NoContent();
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.ErrorMessages = new List<string>() { ex.ToString() };
+            }
+            return _response;
         }
 
     }
