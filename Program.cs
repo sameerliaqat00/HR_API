@@ -1,5 +1,7 @@
 using HR_API;
 using HR_API.Data;
+using HR_API.Repository;
+using HR_API.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -12,6 +14,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(option =>
 });
 
 builder.Services.AddAutoMapper(typeof(MappingConfig));
+
+builder.Services.AddScoped<ICompanyProfileRepository, CompanyProfileRepository>();
+builder.Services.AddScoped<IWorkLocationRepository, WorkLocationRepository>();
 
 builder.Services.AddControllers(option =>
 {

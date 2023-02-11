@@ -51,10 +51,11 @@ namespace HR_API.Repository
             dbSet.Remove(entity);
             await SaveAsync();
         }
-        public async Task UpdateAsync(T entity)
+        public async Task<T> UpdateAsync(T entity)
         {
             dbSet.Update(entity);
             await SaveAsync();
+            return entity;
         }
 
         public async Task SaveAsync()

@@ -4,6 +4,7 @@ using HR_API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HRAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230211060633_Add Work Location With Tables")]
+    partial class AddWorkLocationWithTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,67 +24,6 @@ namespace HRAPI.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("HR_API.Models.Asset", b =>
-                {
-                    b.Property<int>("AssetId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AssetId"));
-
-                    b.Property<int?>("AssetsTypeId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Attachment")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("GuaranteeDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<double?>("Price")
-                        .HasColumnType("float");
-
-                    b.Property<DateTime?>("PurchaseDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("SerialNo")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("StatusId")
-                        .IsRequired()
-                        .HasColumnType("int");
-
-                    b.HasKey("AssetId");
-
-                    b.HasIndex("AssetsTypeId");
-
-                    b.HasIndex("StatusId");
-
-                    b.ToTable("Assets");
-                });
-
-            modelBuilder.Entity("HR_API.Models.AssetType", b =>
-                {
-                    b.Property<int>("AssetTypeId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AssetTypeId"));
-
-                    b.Property<string>("AssetTypes")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("AssetTypeId");
-
-                    b.ToTable("AssetTypes");
-                });
 
             modelBuilder.Entity("HR_API.Models.City", b =>
                 {
@@ -268,22 +210,6 @@ namespace HRAPI.Migrations
                     b.ToTable("SalaryMethods");
                 });
 
-            modelBuilder.Entity("HR_API.Models.Status", b =>
-                {
-                    b.Property<int>("StatusId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StatusId"));
-
-                    b.Property<string>("Statuss")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("StatusId");
-
-                    b.ToTable("Status");
-                });
-
             modelBuilder.Entity("HR_API.Models.WorkLocation", b =>
                 {
                     b.Property<int>("WorkLocationId")
@@ -346,23 +272,6 @@ namespace HRAPI.Migrations
                     b.HasIndex("CountryId");
 
                     b.ToTable("WorkLocations");
-                });
-
-            modelBuilder.Entity("HR_API.Models.Asset", b =>
-                {
-                    b.HasOne("HR_API.Models.AssetType", "AssetType")
-                        .WithMany("Asset")
-                        .HasForeignKey("AssetsTypeId");
-
-                    b.HasOne("HR_API.Models.Status", "Status")
-                        .WithMany("Asset")
-                        .HasForeignKey("StatusId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AssetType");
-
-                    b.Navigation("Status");
                 });
 
             modelBuilder.Entity("HR_API.Models.City", b =>
@@ -430,11 +339,6 @@ namespace HRAPI.Migrations
                     b.Navigation("Country");
                 });
 
-            modelBuilder.Entity("HR_API.Models.AssetType", b =>
-                {
-                    b.Navigation("Asset");
-                });
-
             modelBuilder.Entity("HR_API.Models.City", b =>
                 {
                     b.Navigation("WorkLocation");
@@ -465,11 +369,6 @@ namespace HRAPI.Migrations
             modelBuilder.Entity("HR_API.Models.SalaryMethod", b =>
                 {
                     b.Navigation("CompanyProfile");
-                });
-
-            modelBuilder.Entity("HR_API.Models.Status", b =>
-                {
-                    b.Navigation("Asset");
                 });
 #pragma warning restore 612, 618
         }

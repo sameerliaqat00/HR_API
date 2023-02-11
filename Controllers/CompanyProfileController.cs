@@ -90,11 +90,7 @@ namespace HR_API.Controllers
                     ModelState.AddModelError("CustomError", "Company Name Already Exist");
                     return BadRequest(ModelState);
                 }
-                if (company == null)
-                {
-                    _response.StatusCode = HttpStatusCode.BadRequest;
-                    return BadRequest(_response);
-                }
+                
                 var model = _mapper.Map<CompanyProfile>(createDTO);
 
                 await _repository.CreateAsync(model);
