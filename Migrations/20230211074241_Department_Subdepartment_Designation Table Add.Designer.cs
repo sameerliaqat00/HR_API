@@ -4,6 +4,7 @@ using HR_API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HRAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230211074241_Department_Subdepartment_Designation Table Add")]
+    partial class DepartmentSubdepartmentDesignationTableAdd
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -250,25 +253,6 @@ namespace HRAPI.Migrations
                     b.HasKey("DesignationId");
 
                     b.ToTable("Designations");
-                });
-
-            modelBuilder.Entity("HR_API.Models.EmployeeGrade", b =>
-                {
-                    b.Property<int>("EmployeeGradeId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EmployeeGradeId"));
-
-                    b.Property<string>("GradeCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("GradeName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("EmployeeGradeId");
-
-                    b.ToTable("EmployeeGrades");
                 });
 
             modelBuilder.Entity("HR_API.Models.LoanEligibleMonth", b =>

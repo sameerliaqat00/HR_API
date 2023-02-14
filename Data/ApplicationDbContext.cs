@@ -19,5 +19,9 @@ namespace HR_API.Data
         public DbSet<Status> Status { get; set; }
         public DbSet<AssetType> AssetTypes { get; set; }
         public DbSet<Asset> Assets { get; set; }
+        public DbSet<Department> Departments { get; set; }
+        public DbSet<SubDepartment> SubDepartments { get; set; }
+        public DbSet<Designation> Designations { get; set; }
+        public DbSet<EmployeeGrade> EmployeeGrades { get; set; }
     }
 }
