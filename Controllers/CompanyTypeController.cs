@@ -1,25 +1,22 @@
 ﻿using AutoMapper;
-using HR_API.Data;
 using HR_API.Models;
 using HR_API.Models.Dto.CompanyProfileDto;
 using HR_API.Repository.IRepository;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Net;
 
 namespace HR_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CompanyProfileController : ControllerBase
+    public class CompanyTypeController : ControllerBase
     {
         private readonly ILogger _logger;
         private readonly IMapper _mapper;
-        private readonly ICompanyProfileRepository _repository;
+        private readonly ICompanyTypeRepository _repository;
         protected APIResponse _response;
-        public CompanyProfileController(IMapper mapper, ICompanyProfileRepository repository, ILogger<CompanyProfile> logger)
+        public CompanyTypeController(IMapper mapper, ICompanyTypeRepository repository, ILogger<CompanyType> logger)
         {
             _mapper = mapper;
             _logger = logger;
@@ -28,12 +25,12 @@ namespace HR_API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<APIResponse>> GetCompanies()
+        public async Task<ActionResult<APIResponse>> GetCompanyTypes()
         {
             try
             {
-                var companyList = await _repository.GetAllAsync();
-                _response.Result = _mapper.Map<List<CompanyProfileDTO>>(companyList);
+                var companyTypeList = await _repository.GetAllAsync();
+                _response.Result = _mapper.Map<List<CompanyTypeDTO>>(companyTypeList);
                 _response.StatusCode = HttpStatusCode.OK;
                 return Ok(_response);
             }
@@ -45,11 +42,11 @@ namespace HR_API.Controllers
             return _response;
         }
 
-        [HttpGet("{id:int}", Name = "GetCompany")]
+        [HttpGet("{id:int}", Name = "GetCompanyType")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<APIResponse>> GetCompany(int id)
+        public async Task<ActionResult<APIResponse>> GetCompanyType(int id)
         {
             try
             {
@@ -64,7 +61,7 @@ namespace HR_API.Controllers
                     _response.StatusCode = HttpStatusCode.NotFound;
                     return NotFound(_response);
                 }
-                _response.Result = _mapper.Map<CompanyProfileDTO>(company);
+                _response.Result = _mapper.Map<CompanyTypeDTO>(company);
                 _response.StatusCode = HttpStatusCode.OK;
                 return Ok(_response);
             }
@@ -80,23 +77,23 @@ namespace HR_API.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> CreateCompany([FromBody] CompanyProfileCreateDTO createDTO)
+        public async Task<ActionResult<APIResponse>> CreateCompany([FromBody] CompanyTypeCreateDTO createDTO)
         {
             try
             {
                 var company = await _repository.GetAsync(x => x.CompanyName.ToLower() == createDTO.CompanyName.ToLower());
                 if (company != null)
                 {
-                    ModelState.AddModelError("CustomError", "Company Name Already Exist");
+                    ModelState.AddModelError("CustomError", "Company Type Already Exist");
                     return BadRequest(ModelState);
                 }
-                
-                var model = _mapper.Map<CompanyProfile>(createDTO);
+
+                var model = _mapper.Map<CompanyType>(createDTO);
 
                 await _repository.CreateAsync(model);
-                _response.Result = _mapper.Map<CompanyProfileDTO>(company);
+                _response.Result = _mapper.Map<CompanyTypeDTO>(company);
                 _response.StatusCode = HttpStatusCode.Created;
-                return CreatedAtRoute("GetCompany", new { id = model.CompanyId }, _response);
+                return CreatedAtRoute("GetCompanyType", new { id = model.CompanyTypeId }, _response);
             }
             catch (Exception ex)
             {
@@ -106,11 +103,11 @@ namespace HR_API.Controllers
             return _response;
         }
 
-        [HttpDelete("{id:int}", Name = "DeleteCompany")]
+        [HttpDelete("{id:int}", Name = "DeleteCompanyType")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<APIResponse>> DeleteCompany(int id)
+        public async Task<ActionResult<APIResponse>> DeleteCompanyType(int id)
         {
             try
             {
@@ -119,7 +116,7 @@ namespace HR_API.Controllers
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
                 }
-                var company = await _repository.GetAsync(x => x.CompanyId == id);
+                var company = await _repository.GetAsync(x => x.CompanyTypeId == id);
                 if (company == null)
                 {
                     _response.StatusCode = HttpStatusCode.NotFound;
@@ -141,16 +138,16 @@ namespace HR_API.Controllers
         [HttpPut]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<APIResponse>> UpdateCompany(int id, [FromBody] CompanyProfileUpdateDTO updateDTO)
+        public async Task<ActionResult<APIResponse>> UpdateCompany(int id, [FromBody] CompanyTypeUpdateDTO updateDTO)
         {
             try
             {
-                if (updateDTO == null || id != updateDTO.CompanyId)
+                if (updateDTO == null || id != updateDTO.CompanyTypeId)
                 {
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
                 }
-                var model = _mapper.Map<CompanyProfile>(updateDTO);
+                var model = _mapper.Map<CompanyType>(updateDTO);
                 await _repository.UpdateAsync(model);
                 _response.StatusCode = HttpStatusCode.NoContent;
                 _response.IsSuccess = true;

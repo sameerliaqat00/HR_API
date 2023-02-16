@@ -7,8 +7,8 @@ namespace HR_API.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int SalayMethodId { get; set; }
-        public string? SalayMethod { get; set; }
+        public int SalaryMethodId { get; set; }
+        public string? SalaryMethods { get; set; }
         public ICollection<CompanyProfile> CompanyProfile { get; set; }
     }
 }

@@ -16,6 +16,10 @@ builder.Services.AddDbContext<ApplicationDbContext>(option =>
 builder.Services.AddAutoMapper(typeof(MappingConfig));
 
 builder.Services.AddScoped<ICompanyProfileRepository, CompanyProfileRepository>();
+builder.Services.AddScoped<ICompanyTypeRepository, CompanyTypeRepository>();
+builder.Services.AddScoped<ISalaryMethodRepository, SalaryMethodRepository>();
+builder.Services.AddScoped<ILoanEligibleMonthRepository, LoanEligibleRepository>();
+builder.Services.AddScoped<IRegularizedPeriodRepository, RegularizedPeriodRepository>();
 builder.Services.AddScoped<IWorkLocationRepository, WorkLocationRepository>();
 
 builder.Services.AddControllers(option =>

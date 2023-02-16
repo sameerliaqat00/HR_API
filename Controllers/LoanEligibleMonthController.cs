@@ -1,25 +1,22 @@
 ﻿using AutoMapper;
-using HR_API.Data;
-using HR_API.Models;
 using HR_API.Models.Dto.CompanyProfileDto;
+using HR_API.Models;
 using HR_API.Repository.IRepository;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Net;
 
 namespace HR_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CompanyProfileController : ControllerBase
+    public class LoanEligibleMonthController : ControllerBase
     {
         private readonly ILogger _logger;
         private readonly IMapper _mapper;
-        private readonly ICompanyProfileRepository _repository;
+        private readonly ILoanEligibleMonthRepository _repository;
         protected APIResponse _response;
-        public CompanyProfileController(IMapper mapper, ICompanyProfileRepository repository, ILogger<CompanyProfile> logger)
+        public LoanEligibleMonthController(IMapper mapper, ILoanEligibleMonthRepository repository, ILogger<LoanEligibleMonth> logger)
         {
             _mapper = mapper;
             _logger = logger;
@@ -28,12 +25,12 @@ namespace HR_API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<APIResponse>> GetCompanies()
+        public async Task<ActionResult<APIResponse>> GetLoanEligibleMonths()
         {
             try
             {
-                var companyList = await _repository.GetAllAsync();
-                _response.Result = _mapper.Map<List<CompanyProfileDTO>>(companyList);
+                var LoanEligibleMonthList = await _repository.GetAllAsync();
+                _response.Result = _mapper.Map<List<LoanEligibleMonthDTO>>(LoanEligibleMonthList);
                 _response.StatusCode = HttpStatusCode.OK;
                 return Ok(_response);
             }
@@ -45,11 +42,11 @@ namespace HR_API.Controllers
             return _response;
         }
 
-        [HttpGet("{id:int}", Name = "GetCompany")]
+        [HttpGet("{id:int}", Name = "GetLoanEligibleMonth")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<APIResponse>> GetCompany(int id)
+        public async Task<ActionResult<APIResponse>> GetLoanEligibleMonth(int id)
         {
             try
             {
@@ -58,13 +55,13 @@ namespace HR_API.Controllers
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
                 }
-                var company = await _repository.GetAsync();
-                if (company == null)
+                var LoanEligibleMonth = await _repository.GetAsync();
+                if (LoanEligibleMonth == null)
                 {
                     _response.StatusCode = HttpStatusCode.NotFound;
                     return NotFound(_response);
                 }
-                _response.Result = _mapper.Map<CompanyProfileDTO>(company);
+                _response.Result = _mapper.Map<LoanEligibleMonthDTO>(LoanEligibleMonth);
                 _response.StatusCode = HttpStatusCode.OK;
                 return Ok(_response);
             }
@@ -80,23 +77,23 @@ namespace HR_API.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> CreateCompany([FromBody] CompanyProfileCreateDTO createDTO)
+        public async Task<ActionResult<APIResponse>> CreateSalary([FromBody] LoanEligibleMonthCreateDTO createDTO)
         {
             try
             {
-                var company = await _repository.GetAsync(x => x.CompanyName.ToLower() == createDTO.CompanyName.ToLower());
-                if (company != null)
+                var LoanEligibleMonth = await _repository.GetAsync(x => x.LoanEligibleMonths.ToLower() == createDTO.LoanEligibleMonths.ToLower());
+                if (LoanEligibleMonth != null)
                 {
-                    ModelState.AddModelError("CustomError", "Company Name Already Exist");
+                    ModelState.AddModelError("CustomError", "Salary Method Already Exist");
                     return BadRequest(ModelState);
                 }
-                
-                var model = _mapper.Map<CompanyProfile>(createDTO);
+
+                var model = _mapper.Map<LoanEligibleMonth>(createDTO);
 
                 await _repository.CreateAsync(model);
-                _response.Result = _mapper.Map<CompanyProfileDTO>(company);
+                _response.Result = _mapper.Map<LoanEligibleMonthDTO>(LoanEligibleMonth);
                 _response.StatusCode = HttpStatusCode.Created;
-                return CreatedAtRoute("GetCompany", new { id = model.CompanyId }, _response);
+                return CreatedAtRoute("GetLoanEligibleMonth", new { id = model.LoanEligibleMonthId }, _response);
             }
             catch (Exception ex)
             {
@@ -106,11 +103,11 @@ namespace HR_API.Controllers
             return _response;
         }
 
-        [HttpDelete("{id:int}", Name = "DeleteCompany")]
+        [HttpDelete("{id:int}", Name = "DeleteLoanEligibleMonth")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<APIResponse>> DeleteCompany(int id)
+        public async Task<ActionResult<APIResponse>> DeleteLoanEligibleMonth(int id)
         {
             try
             {
@@ -119,13 +116,13 @@ namespace HR_API.Controllers
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
                 }
-                var company = await _repository.GetAsync(x => x.CompanyId == id);
-                if (company == null)
+                var LoanEligibleMonth = await _repository.GetAsync(x => x.LoanEligibleMonthId == id);
+                if (LoanEligibleMonth == null)
                 {
                     _response.StatusCode = HttpStatusCode.NotFound;
                     return NotFound(_response);
                 }
-                await _repository.RemoveAsync(company);
+                await _repository.RemoveAsync(LoanEligibleMonth);
                 _response.StatusCode = HttpStatusCode.NoContent;
                 _response.IsSuccess = true;
                 return Ok(_response);
@@ -141,16 +138,16 @@ namespace HR_API.Controllers
         [HttpPut]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<APIResponse>> UpdateCompany(int id, [FromBody] CompanyProfileUpdateDTO updateDTO)
+        public async Task<ActionResult<APIResponse>> UpdateLoanEligibleMonth(int id, [FromBody] LoanEligibleMonthUpdateDTO updateDTO)
         {
             try
             {
-                if (updateDTO == null || id != updateDTO.CompanyId)
+                if (updateDTO == null || id != updateDTO.LoanEligibleMonthId)
                 {
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
                 }
-                var model = _mapper.Map<CompanyProfile>(updateDTO);
+                var model = _mapper.Map<LoanEligibleMonth>(updateDTO);
                 await _repository.UpdateAsync(model);
                 _response.StatusCode = HttpStatusCode.NoContent;
                 _response.IsSuccess = true;

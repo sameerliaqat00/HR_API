@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace HR_API.Models.Dto
+namespace HR_API.Models.Dto.CompanyProfileDto
 {
     public class CompanyProfileUpdateDTO
     {
