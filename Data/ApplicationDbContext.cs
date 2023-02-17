@@ -1,13 +1,16 @@
 ﻿using HR_API.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace HR_API.Data
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
         }
+        public DbSet<ApplicationUser> ApplicationUsers { get; set; }
+
         public DbSet<CompanyProfile> CompanyProfiles { get; set; }
         public DbSet<City> Cities { get; set; }
         public DbSet<CompanyType> CompanyTypes { get; set; }

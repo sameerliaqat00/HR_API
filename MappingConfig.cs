@@ -23,10 +23,20 @@ namespace HR_API
             CreateMap<LoanEligibleMonth, LoanEligibleMonthDTO>().ReverseMap();
             CreateMap<LoanEligibleMonth, LoanEligibleMonthCreateDTO>().ReverseMap();
             CreateMap<LoanEligibleMonth, LoanEligibleMonthUpdateDTO>().ReverseMap();
-           
+
             CreateMap<RegularizedPeriod, RegularizedPeriodDTO>().ReverseMap();
             CreateMap<RegularizedPeriod, RegularizedPeriodCreateDTO>().ReverseMap();
             CreateMap<RegularizedPeriod, RegularizedPeriodUpdateDTO>().ReverseMap();
+
+            CreateMap<Country, CountryDTO>().ReverseMap();
+            CreateMap<Country, CountryCreateDTO>().ReverseMap();
+            CreateMap<Country, CountryUpdateDTO>().ReverseMap();
+
+            CreateMap<City, CityDTO>().ReverseMap();
+            CreateMap<City, CityCreateDTO>().ReverseMap();
+            CreateMap<City, CityUpdateDTO>().ReverseMap();
+
+            CreateMap<ApplicationUser, UserDTO>().ReverseMap();
 
         }
     }
