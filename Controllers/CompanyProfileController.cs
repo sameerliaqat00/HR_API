@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
+using System.Text.Json;
 
 namespace HR_API.Controllers
 {
@@ -28,24 +29,42 @@ namespace HR_API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<APIResponse>> GetCompanies()
+        [ResponseCache(CacheProfileName = "Default30")]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<APIResponse>> GetCompanies([FromQuery] string? search, int pageSize = 0, int pageNumber = 1)
         {
             try
             {
-                var companyList = await _repository.GetAllAsync();
-                _response.Result = _mapper.Map<List<CompanyProfileDTO>>(companyList);
+                IEnumerable<CompanyProfile> companyList;
+                companyList = await _repository.GetAllAsync(pageSize: pageSize,
+                        pageNumber: pageNumber);
+
+                if (!string.IsNullOrEmpty(search))
+                {
+                    companyList = companyList.Where(u => u.CompanyName.ToLower().Contains(search));
+                }
+                Pagination pagination = new() { PageNumber = pageNumber, PageSize = pageSize };
+
+                Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(pagination));
+                _response.Result = _mapper.Map<List<CityDTO>>(companyList);
                 _response.StatusCode = HttpStatusCode.OK;
                 return Ok(_response);
+
             }
             catch (Exception ex)
             {
                 _response.IsSuccess = false;
-                _response.ErrorMessages = new List<string>() { ex.ToString() };
+                _response.ErrorMessages
+                     = new List<string>() { ex.ToString() };
             }
             return _response;
         }
 
         [HttpGet("{id:int}", Name = "GetCompany")]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -108,8 +127,10 @@ namespace HR_API.Controllers
 
         [HttpDelete("{id:int}", Name = "DeleteCompany")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<APIResponse>> DeleteCompany(int id)
         {
             try
@@ -138,7 +159,7 @@ namespace HR_API.Controllers
             return _response;
         }
 
-        [HttpPut]
+        [HttpPut("{id:int}", Name = "UpdateCompany")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<APIResponse>> UpdateCompany(int id, [FromBody] CompanyProfileUpdateDTO updateDTO)

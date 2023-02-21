@@ -13,5 +13,6 @@ namespace HR_API.Models
         public int? CountryId { get; set; }
         public Country Country { get; set; }
         public ICollection<WorkLocation> WorkLocation { get; set; }
+
     }
 }

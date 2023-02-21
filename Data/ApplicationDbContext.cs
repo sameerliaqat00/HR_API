@@ -12,6 +12,7 @@ namespace HR_API.Data
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
 
         public DbSet<CompanyProfile> CompanyProfiles { get; set; }
+        public DbSet<Branch> Branches { get; set; }
         public DbSet<City> Cities { get; set; }
         public DbSet<CompanyType> CompanyTypes { get; set; }
         public DbSet<Country> Countries { get; set; }

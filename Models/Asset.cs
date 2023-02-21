@@ -21,5 +21,21 @@ namespace HR_API.Models
         public DateTime? GuaranteeDate { get; set; }
         public string? Description { get; set; }
         public string? Attachment { get; set; }
+        [ForeignKey("CompanyProfile")]
+        public int? CompanyId { get; set; }
+        public CompanyProfile CompanyProfile { get; set; }
+        [ForeignKey("Branch")]
+        public int? BranchId { get; set; }
+        public Branch Branch { get; set; }
+
+        [ForeignKey("AspNetUser")]
+        public string CreatedBy { get; set; }
+        public AspNetUser AspNetUser { get; set; }
+
+        public DateTime CreatedDate { get; set; }
+        [ForeignKey("AspNetUser1")]
+        public string UpdatedBy { get; set; }
+        public AspNetUser AspNetUser1 { get; set; }
+        public DateTime UpdatedDate { get; set; }
     }
 }

@@ -35,5 +35,14 @@ namespace HR_API.Models
         [ForeignKey("RegularizedPeriod")]
         public int? RegularizedPeriodID { get; set; }
         public RegularizedPeriod RegularizedPeriod { get; set; }
+
+
+        public virtual ICollection<Asset> Asset { get; set; }
+        public virtual ICollection<AssetType> AssetType { get; set; }
+        public virtual ICollection<Branch> Branch { get; set; }
+        public virtual ICollection<Department> Department { get; set; }
+        public virtual ICollection<Designation> Designation { get; set; }
+        public virtual ICollection<SubDepartment> SubDepartment { get; set; }
+        public virtual ICollection<WorkLocation> WorkLocation { get; set; }
     }
 }

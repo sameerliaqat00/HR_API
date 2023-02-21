@@ -5,6 +5,7 @@ using HR_API.Repository.IRepository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using System.Text.Json;
 
 namespace HR_API.Controllers
 {
@@ -29,19 +30,31 @@ namespace HR_API.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<APIResponse>> GetCitys()
+        public async Task<ActionResult<APIResponse>> GetCitys([FromQuery] string? search, int pageSize = 0, int pageNumber = 1)
         {
             try
             {
-                var CityList = await _repository.GetAllAsync();
-                _response.Result = _mapper.Map<List<CityDTO>>(CityList);
+                IEnumerable<City> cityList;
+                cityList = await _repository.GetAllAsync(pageSize: pageSize,
+                        pageNumber: pageNumber);
+                
+                if (!string.IsNullOrEmpty(search))
+                {
+                    cityList = cityList.Where(u => u.CityName.ToLower().Contains(search));
+                }
+                Pagination pagination = new() { PageNumber = pageNumber, PageSize = pageSize };
+
+                Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(pagination));
+                _response.Result = _mapper.Map<List<CityDTO>>(cityList);
                 _response.StatusCode = HttpStatusCode.OK;
                 return Ok(_response);
+
             }
             catch (Exception ex)
             {
                 _response.IsSuccess = false;
-                _response.ErrorMessages = new List<string>() { ex.ToString() };
+                _response.ErrorMessages
+                     = new List<string>() { ex.ToString() };
             }
             return _response;
         }
@@ -61,13 +74,13 @@ namespace HR_API.Controllers
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
                 }
-                var company = await _repository.GetAsync();
-                if (company == null)
+                var city = await _repository.GetAsync();
+                if (city == null)
                 {
                     _response.StatusCode = HttpStatusCode.NotFound;
                     return NotFound(_response);
                 }
-                _response.Result = _mapper.Map<CityDTO>(company);
+                _response.Result = _mapper.Map<CityDTO>(city);
                 _response.StatusCode = HttpStatusCode.OK;
                 return Ok(_response);
             }
@@ -83,12 +96,12 @@ namespace HR_API.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> CreateCompany([FromBody] CityCreateDTO createDTO)
+        public async Task<ActionResult<APIResponse>> CreateCity([FromBody] CityCreateDTO createDTO)
         {
             try
             {
-                var company = await _repository.GetAsync(x => x.CityName.ToLower() == createDTO.CityName.ToLower());
-                if (company != null)
+                var city = await _repository.GetAsync(x => x.CityName.ToLower() == createDTO.CityName.ToLower());
+                if (city != null)
                 {
                     ModelState.AddModelError("CustomError", "City Already Exist");
                     return BadRequest(ModelState);
@@ -97,7 +110,7 @@ namespace HR_API.Controllers
                 var model = _mapper.Map<City>(createDTO);
 
                 await _repository.CreateAsync(model);
-                _response.Result = _mapper.Map<CityDTO>(company);
+                _response.Result = _mapper.Map<CityDTO>(city);
                 _response.StatusCode = HttpStatusCode.Created;
                 return CreatedAtRoute("GetCity", new { id = model.CityId }, _response);
             }
@@ -111,8 +124,10 @@ namespace HR_API.Controllers
 
         [HttpDelete("{id:int}", Name = "DeleteCity")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<APIResponse>> DeleteCity(int id)
         {
             try
@@ -122,13 +137,13 @@ namespace HR_API.Controllers
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
                 }
-                var company = await _repository.GetAsync(x => x.CityId == id);
-                if (company == null)
+                var city = await _repository.GetAsync(x => x.CityId == id);
+                if (city == null)
                 {
                     _response.StatusCode = HttpStatusCode.NotFound;
                     return NotFound(_response);
                 }
-                await _repository.RemoveAsync(company);
+                await _repository.RemoveAsync(city);
                 _response.StatusCode = HttpStatusCode.NoContent;
                 _response.IsSuccess = true;
                 return Ok(_response);
@@ -141,10 +156,10 @@ namespace HR_API.Controllers
             return _response;
         }
 
-        [HttpPut]
+        [HttpPut("{id:int}", Name = "UpdateCity")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<APIResponse>> UpdateCompany(int id, [FromBody] CityUpdateDTO updateDTO)
+        public async Task<ActionResult<APIResponse>> UpdateCity(int id, [FromBody] CityUpdateDTO updateDTO)
         {
             try
             {

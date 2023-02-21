@@ -4,6 +4,7 @@ using HR_API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HRAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230220125711_Update AssetType Table With User Company And Branch")]
+    partial class UpdateAssetTypeTableWithUserCompanyAndBranch
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -447,18 +450,7 @@ namespace HRAPI.Migrations
                     b.Property<int>("CompanyId")
                         .HasColumnType("int");
 
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("Departments")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UpdatedBy")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("DepartmentId");
@@ -466,8 +458,6 @@ namespace HRAPI.Migrations
                     b.HasIndex("BranchId");
 
                     b.HasIndex("CompanyId");
-
-                    b.HasIndex("CreatedBy");
 
                     b.ToTable("Departments");
                 });
@@ -480,33 +470,20 @@ namespace HRAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DesignationId"));
 
-                    b.Property<int>("BranchId")
+                    b.Property<int?>("BranchId")
                         .HasColumnType("int");
 
-                    b.Property<int>("CompanyId")
+                    b.Property<int?>("CompanyProfileCompanyId")
                         .HasColumnType("int");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("Designations")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UpdatedBy")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("DesignationId");
 
                     b.HasIndex("BranchId");
 
-                    b.HasIndex("CompanyId");
-
-                    b.HasIndex("CreatedBy");
+                    b.HasIndex("CompanyProfileCompanyId");
 
                     b.ToTable("Designations");
                 });
@@ -602,18 +579,11 @@ namespace HRAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SubDepartmentId"));
 
-                    b.Property<int>("BranchId")
+                    b.Property<int?>("BranchId")
                         .HasColumnType("int");
 
-                    b.Property<int>("CompanyId")
+                    b.Property<int?>("CompanyProfileCompanyId")
                         .HasColumnType("int");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
 
                     b.Property<int?>("DepartmentId")
                         .IsRequired()
@@ -622,17 +592,11 @@ namespace HRAPI.Migrations
                     b.Property<string>("SubDepartments")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UpdatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("SubDepartmentId");
 
                     b.HasIndex("BranchId");
 
-                    b.HasIndex("CompanyId");
-
-                    b.HasIndex("CreatedBy");
+                    b.HasIndex("CompanyProfileCompanyId");
 
                     b.HasIndex("DepartmentId");
 
@@ -650,26 +614,19 @@ namespace HRAPI.Migrations
                     b.Property<string>("Address")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("BranchId")
+                    b.Property<int?>("BranchId")
                         .HasColumnType("int");
 
                     b.Property<int?>("CityId")
                         .IsRequired()
                         .HasColumnType("int");
 
-                    b.Property<int>("CompanyId")
+                    b.Property<int?>("CompanyProfileCompanyId")
                         .HasColumnType("int");
 
                     b.Property<int?>("CountryId")
                         .IsRequired()
                         .HasColumnType("int");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
 
                     b.Property<bool?>("EnableGeoFence")
                         .HasColumnType("bit");
@@ -698,10 +655,6 @@ namespace HRAPI.Migrations
                     b.Property<double?>("Radius")
                         .HasColumnType("float");
 
-                    b.Property<string>("UpdatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<bool?>("VideoMode")
                         .HasColumnType("bit");
 
@@ -717,11 +670,9 @@ namespace HRAPI.Migrations
 
                     b.HasIndex("CityId");
 
-                    b.HasIndex("CompanyId");
+                    b.HasIndex("CompanyProfileCompanyId");
 
                     b.HasIndex("CountryId");
-
-                    b.HasIndex("CreatedBy");
 
                     b.ToTable("WorkLocations");
                 });
@@ -1008,14 +959,6 @@ namespace HRAPI.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("HR_API.Models.AspNetUser", "AspNetUser")
-                        .WithMany()
-                        .HasForeignKey("CreatedBy")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AspNetUser");
-
                     b.Navigation("Branch");
 
                     b.Navigation("CompanyProfile");
@@ -1023,50 +966,24 @@ namespace HRAPI.Migrations
 
             modelBuilder.Entity("HR_API.Models.Designation", b =>
                 {
-                    b.HasOne("HR_API.Models.Branch", "Branch")
+                    b.HasOne("HR_API.Models.Branch", null)
                         .WithMany("Designation")
-                        .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("BranchId");
 
-                    b.HasOne("HR_API.Models.CompanyProfile", "CompanyProfile")
+                    b.HasOne("HR_API.Models.CompanyProfile", null)
                         .WithMany("Designation")
-                        .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("HR_API.Models.AspNetUser", "AspNetUser")
-                        .WithMany()
-                        .HasForeignKey("CreatedBy")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AspNetUser");
-
-                    b.Navigation("Branch");
-
-                    b.Navigation("CompanyProfile");
+                        .HasForeignKey("CompanyProfileCompanyId");
                 });
 
             modelBuilder.Entity("HR_API.Models.SubDepartment", b =>
                 {
-                    b.HasOne("HR_API.Models.Branch", "Branch")
+                    b.HasOne("HR_API.Models.Branch", null)
                         .WithMany("SubDepartment")
-                        .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("BranchId");
 
-                    b.HasOne("HR_API.Models.CompanyProfile", "CompanyProfile")
+                    b.HasOne("HR_API.Models.CompanyProfile", null)
                         .WithMany("SubDepartment")
-                        .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("HR_API.Models.AspNetUser", "AspNetUser")
-                        .WithMany()
-                        .HasForeignKey("CreatedBy")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CompanyProfileCompanyId");
 
                     b.HasOne("HR_API.Models.Department", "Department")
                         .WithMany("SubDepartment")
@@ -1074,22 +991,14 @@ namespace HRAPI.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("AspNetUser");
-
-                    b.Navigation("Branch");
-
-                    b.Navigation("CompanyProfile");
-
                     b.Navigation("Department");
                 });
 
             modelBuilder.Entity("HR_API.Models.WorkLocation", b =>
                 {
-                    b.HasOne("HR_API.Models.Branch", "Branch")
+                    b.HasOne("HR_API.Models.Branch", null)
                         .WithMany("WorkLocation")
-                        .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("BranchId");
 
                     b.HasOne("HR_API.Models.City", "City")
                         .WithMany("WorkLocation")
@@ -1097,11 +1006,9 @@ namespace HRAPI.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("HR_API.Models.CompanyProfile", "CompanyProfile")
+                    b.HasOne("HR_API.Models.CompanyProfile", null)
                         .WithMany("WorkLocation")
-                        .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CompanyProfileCompanyId");
 
                     b.HasOne("HR_API.Models.Country", "Country")
                         .WithMany("WorkLocation")
@@ -1109,19 +1016,7 @@ namespace HRAPI.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("HR_API.Models.AspNetUser", "AspNetUser")
-                        .WithMany()
-                        .HasForeignKey("CreatedBy")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AspNetUser");
-
-                    b.Navigation("Branch");
-
                     b.Navigation("City");
-
-                    b.Navigation("CompanyProfile");
 
                     b.Navigation("Country");
                 });
